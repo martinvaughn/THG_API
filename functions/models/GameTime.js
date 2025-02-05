@@ -21,8 +21,9 @@ class GameTime {
             throw new Error("Schedule type must be 'daily' or 'weekly'.");
         }
 
-        if (typeof time !== "string" || !/^\d{2}:\d{2}$/.test(time)) {
-            throw new Error("Time must be in 'HH:MM' 24-hour format.");
+        // Validate UTC time format (HH:MM with optional Z suffix)
+        if (typeof time !== "string" || !/^([01]\d|2[0-3]):([0-5]\d)Z?$/.test(time)) {
+            throw new Error("Time must be in UTC 24-hour format 'HH:MM' (e.g., '14:30')");
         }
 
         if (type === "weekly") {
@@ -31,7 +32,9 @@ class GameTime {
             }
         }
 
-        return { type, days: days || [], time };
+        // Store time without the Z suffix for consistency
+        const cleanTime = time.replace('Z', '');
+        return { type, days: days || [], time: cleanTime };
     }
 
     /**

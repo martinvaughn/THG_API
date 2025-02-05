@@ -5,29 +5,8 @@ const HabitRecord = require("../models/HabitRecord");
 const GameSession = require("../models/Gamesession");
 
 const router = express.Router();
-
-/**
- * 📌 Fetch Active GameSessions (for the Home Screen)
- */
-router.get("/active", authenticate, async (req, res) => {
-    try {
-        const now = new Date().toISOString();
-
-        const snapshot = await db
-            .collection("gameSessions")
-            .where("userId", "==", req.user.uid)
-            .where("status", "==", "pending")
-            .where("expiresAt", ">", now) // Only get sessions that are still valid
-            .orderBy("expiresAt", "asc")
-            .get();
-
-        const activeSessions = snapshot.docs.map((doc) => GameSession.fromFirestore(doc));
-        return res.json(activeSessions);
-    } catch (error) {
-        console.error("Error fetching active game sessions:", error);
-        return res.status(500).json({ error: "Internal server error." });
-    }
-});
+const habitRecordsCollection = "habitRecords";
+const gameSessionsCollection = "gameSessions";
 
 /**
  * 📌 Record a Habit Swipe (Left = Completed, Right = Failed)
@@ -40,7 +19,7 @@ router.post("/", authenticate, async (req, res) => {
 
     try {
         // 🔹 Check if the GameSession exists and is still valid
-        const sessionRef = db.collection("gameSessions").doc(gameSessionId);
+        const sessionRef = db.collection(gameSessionsCollection).doc(gameSessionId);
         const sessionDoc = await sessionRef.get();
 
         if (!sessionDoc.exists) {
@@ -61,11 +40,11 @@ router.post("/", authenticate, async (req, res) => {
             userId: req.user.uid,
         });
 
-        const habitRecordRef = await db.collection("habitRecords").add({ ...habitRecord });
+        const habitRecordRef = await db.collection(habitRecordsCollection).add({ ...habitRecord });
 
         // 🔹 Check if all habits for this session have been recorded
         const recordedHabits = await db
-            .collection("habitRecords")
+            .collection(habitRecordsCollection)
             .where("gameSessionId", "==", gameSessionId)
             .where("userId", "==", req.user.uid)
             .get();

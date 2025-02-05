@@ -12,20 +12,22 @@ const logger = require("firebase-functions/logger");
 const express = require("express");
 const cors = require("cors");
 
-const gametimesRoutes = require("./routes/gametimes");
+const gameTimesRoutes = require("./routes/gametimes");
 const groupsRoutes = require("./routes/groups");
 const habitsRoutes = require("./routes/habits");
 const habitRecordsRoutes = require("./routes/habitRecords");
+const gameSessionRoutes = require("./routes/gameSessions");
 
 const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
 // Routes
-app.use("/gametimes", gametimesRoutes);
+app.use("/gameTimes", gameTimesRoutes);
 app.use("/groups", groupsRoutes);
 app.use("/habits", habitsRoutes);
 app.use("/habitRecords", habitRecordsRoutes);
+app.use("/gameSessions", gameSessionRoutes);
 
 // Export the Express app as a Firebase Cloud Function
 exports.api = onRequest(app);

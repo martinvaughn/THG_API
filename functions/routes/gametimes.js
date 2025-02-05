@@ -4,6 +4,7 @@ const { authenticate } = require("../utils/auth");
 const GameTime = require("../models/GameTime");
 
 const router = express.Router();
+const gametimesCollection = "gameTimes";
 
 /**
  * 📌 Create a new GameTime with strict schedule enforcement
@@ -18,7 +19,7 @@ router.post("/", authenticate, async (req, res) => {
             userId: req.user.uid,
         });
 
-        const docRef = await db.collection("gameTimes").add({ ...newGameTime });
+        const docRef = await db.collection(gametimesCollection).add({ ...newGameTime });
         return res.json({ message: "GameTime created successfully!", id: docRef.id });
     } catch (error) {
         console.error("Error creating GameTime:", error);
@@ -26,9 +27,11 @@ router.post("/", authenticate, async (req, res) => {
     }
 });
 
-// Get user's GameTimes
+/**
+ * 📌 Get user's GameTimes
+ */
 router.get("/", authenticate, async (req, res) => {
-    const snapshot = await db.collection("gametimes").where("userId", "==", req.user.uid).get();
+    const snapshot = await db.collection(gametimesCollection).where("userId", "==", req.user.uid).get();
     const gameTimes = snapshot.docs.map(doc => GameTime.fromFirestore(doc));
     return res.json(gameTimes);
 });
@@ -36,7 +39,7 @@ router.get("/", authenticate, async (req, res) => {
 // Update a GameTime (add/remove habits)
 router.patch("/:id", authenticate, async (req, res) => {
     const { habits } = req.body;
-    const docRef = db.collection("gametimes").doc(req.params.id);
+    const docRef = db.collection(gametimesCollection).doc(req.params.id);
     await docRef.update({ habits });
 
     return res.json({ message: "GameTime updated" });
