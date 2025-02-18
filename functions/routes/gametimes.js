@@ -38,10 +38,16 @@ router.get("/", authenticate, async (req, res) => {
 
 // Update a GameTime (add/remove habits)
 router.patch("/:id", authenticate, async (req, res) => {
-    const { habits } = req.body;
+    const { habits, name, schedule } = req.body;
     const docRef = db.collection(gametimesCollection).doc(req.params.id);
-    await docRef.update({ habits });
+    
+    // Create update object with only defined values
+    const updateData = {};
+    if (habits !== undefined) updateData.habits = habits;
+    if (name !== undefined) updateData.name = name;
+    if (schedule !== undefined) updateData.schedule = schedule;
 
+    await docRef.update(updateData);
     return res.json({ message: "GameTime updated" });
 });
 

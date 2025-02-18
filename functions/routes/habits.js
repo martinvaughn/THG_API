@@ -6,11 +6,11 @@ const Habit = require("../models/Habit");
 const router = express.Router();
 
 // Create a new habit
-router.post("/", async (req, res) => {
+router.post("/", authenticate, async (req, res) => {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: "Missing fields" });
 
-    const habit = new Habit({ name, userId: 1 });
+    const habit = new Habit({ name, userId: req.user.uid });
     const docRef = await db.collection("habits").add({ ...habit });
 
     habit.id = docRef.id;
@@ -18,8 +18,8 @@ router.post("/", async (req, res) => {
 });
 
 // Get all user's habits
-router.get("/", async (req, res) => {
-    const snapshot = await db.collection("habits").where("userId", "==", 1).get();
+router.get("/", authenticate, async (req, res) => {
+    const snapshot = await db.collection("habits").where("userId", "==", req.user.uid).get();
     const habits = snapshot.docs.map(doc => Habit.fromFirestore(doc));
     return res.json(habits);
 });

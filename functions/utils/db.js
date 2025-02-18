@@ -6,6 +6,9 @@ if (process.env.FUNCTIONS_EMULATOR) {
   admin.initializeApp({
     projectId: 'thehabitgame-63ae7'
   });
+  
+  // Connect to auth emulator
+  process.env['FIREBASE_AUTH_EMULATOR_HOST'] = 'localhost:9099';
 } else {
   // Running in production
   admin.initializeApp();
