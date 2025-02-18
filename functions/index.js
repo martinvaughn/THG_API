@@ -18,6 +18,12 @@ const habitsRoutes = require("./routes/habits");
 const habitRecordsRoutes = require("./routes/habitRecords");
 const gameSessionRoutes = require("./routes/gameSessions");
 
+try {
+    require('dotenv').config();
+} catch (error) {
+    console.log('No .env file found, continuing without it');
+}
+
 const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
@@ -39,3 +45,8 @@ exports.api = onRequest(app);
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
+
+const { createScheduledGameSessions, testCreateGameSessions } = require("./scheduled/createGameSessions");
+
+exports.createScheduledGameSessions = createScheduledGameSessions;
+exports.testCreateGameSessions = testCreateGameSessions;
